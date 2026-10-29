@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Agenda</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icone-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon Agenda">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#22180f"><link rel="stylesheet" href="style.css">
+<script>
+  // Applique le dernier mode connu avant l'affichage, pour éviter un flash.
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<div class="ambiance" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<div class="app">
+  <nav class="nav" aria-label="Navigation principale">
+    <div class="marque"><span class="marque-a">a</span><span class="marque-texte">Mon Agenda</span></div>
+    <button class="onglet actif" data-vue="agenda"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Agenda</span></button>
+    <button class="onglet" data-vue="import"><svg viewBox="0 0 24 24"><path d="M4 16.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-2.5M12 3.5v12M7.5 11l4.5 4.5 4.5-4.5"/></svg><span>Import</span></button>
+    <button class="onglet" data-vue="notes"><svg viewBox="0 0 24 24"><path d="M6 3.5h9l4.5 4.5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1z"/><path d="M14.5 3.5V8.5h5M8.5 12.5h7M8.5 16h5"/></svg><span>Notes</span></button>
+    <button class="onglet" data-vue="legendes"><svg viewBox="0 0 24 24"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.5 1.5 0 0 1 0 2.1l-6.6 6.6a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8.3" cy="8.3" r="1.6"/></svg><span>Légendes</span></button>
+    <button class="onglet" data-vue="reglages"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><span>Réglages</span></button>
+  </nav>
+
+  <main>
+    <!-- AGENDA -->
+    <section class="vue active" id="vue-agenda">
+      <div class="agenda">
+        <div class="colonne-calendrier">
+          <header class="entete-mois">
+            <div class="titre-mois">
+              <p class="surtitre"><button class="bouton-annee" id="btn-annee" aria-label="Choisir l'année"><span id="annee"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></p>
+              <h1><button class="bouton-mois" id="btn-mois" aria-label="Choisir le mois"><span id="titre-mois"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></h1>
+              <div class="selecteur verre" id="selecteur"></div>
+            </div>
+            <div class="commandes-mois">
+              <button class="bouton-rond" id="mois-prec" aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <button class="bouton-texte" id="aujourdhui">Aujourd'hui</button>
+              <button class="bouton-rond" id="mois-suiv" aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+            </div>
+          </header>
+
+          <div class="pinceau verre" id="pinceau">
+            <div class="pinceau-titre">
+              <span>Remplir le mois</span>
+              <small id="pinceau-aide">Choisis un code puis touche les jours</small>
+            </div>
+            <div class="pinceau-codes" id="pinceau-codes"></div>
+          </div>
+
+          <div class="calendrier verre">
+            <div class="jours-semaine" id="jours-semaine"></div>
+            <div class="grille" id="grille"></div>
+          </div>
+
+          <div class="stats verre" id="stats"></div>
+        </div>
+
+        <aside class="panneau-jour verre" id="panneau-jour"></aside>
+      </div>
+    </section>
+
+    <!-- IMPORT -->
+    <section class="vue" id="vue-import">
+      <header class="entete-vue">
+        <div>
+          <p class="surtitre">Planning du service</p>
+          <h1>Import</h1>
+        </div>
+      </header>
+      <p class="aide intro-import">Prends en photo le tableau : ChatGPT le lit gratuitement, et ton mois se remplit tout seul. L'appli n'envoie rien elle-même.</p>
+      <div class="import">
+        <div class="carte-import verre" id="import-etapes"></div>
+        <div class="carte-import verre" id="import-apercu"></div>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section class="vue" id="vue-notes">
+      <header class="entete-vue">
+        <div>
+          <p class="surtitre">Bloc-notes</p>
+          <h1>Notes</h1>
+        </div>
+        <button class="bouton-principal" id="nouvelle-note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouvelle note</button>
+      </header>
+      <div class="recherche verre">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <input type="search" id="recherche-notes" placeholder="Rechercher dans les notes">
+      </div>
+      <div class="liste-notes" id="liste-notes"></div>
+    </section>
+
+    <!-- LÉGENDES -->
+    <section class="vue" id="vue-legendes">
+      <header class="entete-vue">
+        <div>
+          <p class="surtitre">Tes codes horaires</p>
+          <h1>Légendes</h1>
+        </div>
+        <button class="bouton-principal" id="nouvelle-legende"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nouveau code</button>
+      </header>
+      <div class="liste-legendes" id="liste-legendes"></div>
+
+      <header class="entete-section">
+        <div>
+          <h2>Types de journée</h2>
+          <p class="aide">Chaque code appartient à un type. Les types « travail » comptent dans le récap.</p>
+        </div>
+        <button class="bouton-texte" id="nouveau-type"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ajouter un type</button>
+      </header>
+      <div class="liste-types" id="liste-types"></div>
+    </section>
+
+    <!-- RÉGLAGES -->
+    <section class="vue" id="vue-reglages">
+      <header class="entete-vue">
+        <div>
+          <p class="surtitre">Mon Agenda</p>
+          <h1>Réglages</h1>
+        </div>
+      </header>
+      <div class="carte-reglages verre">
+        <h2>Apparence</h2>
+        <p class="aide">Le mode nuit est sombre et chaud ; le mode jour est clair et lumineux.</p>
+        <div class="reglage">
+          <div class="segments" id="choix-theme">
+            <button class="segment" data-theme-choix="nuit"><svg viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>Nuit</button>
+            <button class="segment" data-theme-choix="jour"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>Jour</button>
+            <button class="segment" data-theme-choix="auto">Auto</button>
+          </div>
+        </div>
+      </div>
+      <div class="carte-reglages verre" id="reglages-rappels"></div>
+      <div class="carte-reglages verre">
+        <h2>Tes données</h2>
+        <p class="aide">Ton agenda est enregistré uniquement sur cet appareil, sans lien avec aucun autre agenda ni aucun compte.</p>
+        <p class="chemin" id="chemin-donnees"></p>
+        <div id="sauvegarde"></div>
+      </div>
+      <p class="version">Mon Agenda · version 0.3</p>
+    </section>
+  </main>
+</div>
+
+<div class="voile" id="voile"></div>
+<div class="feuille verre" id="feuille" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+
+<script src="web.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
